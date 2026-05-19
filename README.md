@@ -1,7 +1,7 @@
 <div align="center">
 
 # 🔧 Mini Compiler
-### CSE 430 — Compiler Design Lab
+### A project of CSE 430 — Compiler Design Lab
 
 <p>
   <img src="https://img.shields.io/badge/Language-C-blue?style=for-the-badge&logo=c&logoColor=white"/>
@@ -656,13 +656,12 @@ After:   (removed entirely)
 1. Aho, A.V., Lam, M.S., Sethi, R., Ullman, J.D. — *Compilers: Principles, Techniques, and Tools* (2nd Ed.), Pearson
 2. Flex documentation — https://github.com/westes/flex
 3. Bison manual — https://www.gnu.org/software/bison/manual/
-4. CSE 430 Lab Materials — University of Asia Pacific, Fall 2023
 
 ---
 
 <div align="center">
 
-Made with ❤️ for **CSE 430 — Compiler Design Lab**<br/>
+Made with ❤️ by Bokhtear MD Abid<br/>
 **University of Asia Pacific** &nbsp;·&nbsp; Department of Computer Science & Engineering
 
 </div>
