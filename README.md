@@ -1,2 +1,668 @@
-# Mini_Compiler
-A Python-like Language Mini Compiler using Lex/YACC
+<div align="center">
+
+# 🔧 Mini Compiler
+### CSE 430 — Compiler Design Lab
+
+<p>
+  <img src="https://img.shields.io/badge/Language-C-blue?style=for-the-badge&logo=c&logoColor=white"/>
+  <img src="https://img.shields.io/badge/Lexer-Flex%2FLex-1565C0?style=for-the-badge"/>
+  <img src="https://img.shields.io/badge/Parser-Bison%2FYACC-6A1B9A?style=for-the-badge"/>
+  <img src="https://img.shields.io/badge/Platform-WSL%20%7C%20Linux-E65100?style=for-the-badge&logo=linux&logoColor=white"/>
+  <img src="https://img.shields.io/badge/Phases-6-00695C?style=for-the-badge"/>
+  <img src="https://img.shields.io/badge/Status-Passing-00C853?style=for-the-badge"/>
+</p>
+
+<p>
+  A fully working <strong>mini compiler</strong> for a Python-like language that compiles source code<br/>
+  through <strong>6 clearly visible phases</strong> — from tokenization to pseudo-assembly output.
+</p>
+
+<p>
+  <strong>University of Asia Pacific</strong> &nbsp;·&nbsp;
+  Department of Computer Science & Engineering &nbsp;·&nbsp;
+  Fall 2023
+</p>
+
+</div>
+
+---
+
+## 📋 Table of Contents
+
+| # | Section |
+|---|---------|
+| 1 | [Features](#-features) |
+| 2 | [Compiler Phases](#-compiler-phases) |
+| 3 | [Project Structure](#-project-structure) |
+| 4 | [Supported Language](#-supported-language) |
+| 5 | [Requirements](#-requirements) |
+| 6 | [Running in WSL — Step by Step](#-running-in-wsl--step-by-step) |
+| 7 | [Sample Input & Output](#-sample-input--output) |
+| 8 | [Error Detection](#-error-detection) |
+| 9 | [Optimizations](#-optimizations) |
+| 10 | [References](#-references) |
+
+---
+
+## ✨ Features
+
+<table>
+<tr>
+<td width="50%">
+
+**Core Compiler Features**
+- ✅ 6 compiler phases, each clearly printed
+- ✅ Flex-based lexer with full token table
+- ✅ Bison/YACC grammar with 34+ rules
+- ✅ Semantic analysis with scope tracking
+- ✅ Symbol table (name, value, type, scope)
+- ✅ Three-address intermediate code (TAC)
+- ✅ 3 optimization passes
+- ✅ Pseudo x86 assembly output
+
+</td>
+<td width="50%">
+
+**Language Support**
+- ✅ Integer variables (`int`)
+- ✅ Arithmetic: `+` `-` `*` `/`
+- ✅ Comparisons: `==` `!=` `<` `>` `<=` `>=`
+- ✅ `if` / `if-else` statements
+- ✅ `while` loops
+- ✅ Function definition & call (`func`)
+- ✅ `return` statements
+- ✅ `print` (values and strings)
+
+</td>
+</tr>
+</table>
+
+---
+
+## ⚙️ Compiler Phases
+
+The compiler passes source code through **6 sequential phases**:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                       SOURCE CODE                           │
+│                 int a = 12 - 3;  print a;                   │
+└───────────────────────────┬─────────────────────────────────┘
+                            │
+                            ▼
+┌─────────────────────────────────────────────────────────────┐
+│  PHASE 1 │ LEXICAL ANALYSIS                  [lexer.l]      │
+│          │ Tokenizes input → KEYWORD, IDENTIFIER, NUMBER…   │
+└───────────────────────────┬─────────────────────────────────┘
+                            │
+                            ▼
+┌─────────────────────────────────────────────────────────────┐
+│  PHASE 2 │ SYNTAX ANALYSIS                   [parser.y]     │
+│          │ Validates grammar rules → parse tree             │
+└───────────────────────────┬─────────────────────────────────┘
+                            │
+                            ▼
+┌─────────────────────────────────────────────────────────────┐
+│  PHASE 3 │ SEMANTIC ANALYSIS                 [parser.y]     │
+│          │ Type checks, scope, symbol table population      │
+└───────────────────────────┬─────────────────────────────────┘
+                            │
+                            ▼
+┌─────────────────────────────────────────────────────────────┐
+│  PHASE 4 │ INTERMEDIATE CODE GENERATION      [parser.y]     │
+│          │ Three-address code  t0 = 12 - 3   a = t0        │
+└───────────────────────────┬─────────────────────────────────┘
+                            │
+                            ▼
+┌─────────────────────────────────────────────────────────────┐
+│  PHASE 5 │ CODE OPTIMIZATION                 [parser.y]     │
+│          │ Constant fold · Copy propagation · Dead elim     │
+└───────────────────────────┬─────────────────────────────────┘
+                            │
+                            ▼
+┌─────────────────────────────────────────────────────────────┐
+│  PHASE 6 │ CODE GENERATION                   [parser.y]     │
+│          │ Pseudo x86 assembly  MOV ADD SUB OUT JE HLT      │
+└─────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 📁 Project Structure
+
+```
+minicompiler/
+│
+├── lexer.l          ← Flex lexer: tokenizes source, logs all tokens
+├── parser.y         ← Bison parser: grammar + all 6 phase logic
+├── Makefile         ← Build script (flex → bison → gcc → binary)
+└── test.py          ← Sample input program for testing
+│
+│   (auto-generated by make — do not edit)
+├── parser.tab.c
+├── parser.tab.h
+├── lex.yy.c
+└── minicompiler     ← Final compiled executable
+```
+
+---
+
+## 📝 Supported Language
+
+The compiler accepts a **Python-like language** with C-style braces.
+
+### Syntax Reference
+
+| Feature | Syntax | Example |
+|---------|--------|---------|
+| Variable declaration | `int name = expr;` | `int a = 12 - 3;` |
+| Assignment | `name = expr;` | `a = b + 5;` |
+| Print value | `print expr;` | `print a;` |
+| Print string | `print "text";` | `print "Hello!";` |
+| If | `if (cond) { }` | `if (a > 5) { print a; }` |
+| If-Else | `if (cond) { } else { }` | `if (x > y) { } else { print y; }` |
+| While loop | `while (cond) { }` | `while (i > 0) { i = i - 1; }` |
+| Function | `func name(int p) { }` | `func add(int x, int y) { }` |
+| Return | `return expr;` | `return x + y;` |
+| Comment | `// text` | `// this line is ignored` |
+
+### Operators
+
+| Category | Operators |
+|----------|-----------|
+| Arithmetic | `+` `-` `*` `/` |
+| Assignment | `=` |
+| Comparison | `==` `!=` `<` `>` `<=` `>=` |
+
+---
+
+## 🖥️ Requirements
+
+| Tool | Min Version | Purpose |
+|------|-------------|---------|
+| `flex` | 2.6+ | Lexer generator |
+| `bison` | 3.0+ | Parser generator (YACC) |
+| `gcc` | 9.0+ | C compiler |
+| `make` | 4.0+ | Build automation |
+
+> All tools are free and available via `apt` on Ubuntu/WSL.
+
+---
+
+## 🚀 Running in WSL — Step by Step
+
+> **What is WSL?**
+> Windows Subsystem for Linux lets you run a full Linux terminal on Windows.
+> All the tools this project needs (`flex`, `bison`, `gcc`) work natively in WSL.
+
+---
+
+### 🔹 Step 1 — Open WSL
+
+Press `Win + S`, search for **Ubuntu** or **WSL**, and open it.
+
+<details>
+<summary><strong>💡 WSL not installed yet? Click to expand</strong></summary>
+
+Open **PowerShell as Administrator** and run:
+
+```powershell
+wsl --install
+```
+
+Restart your computer when prompted. Then open **Ubuntu** from the Start menu and set up your username and password.
+
+</details>
+
+---
+
+### 🔹 Step 2 — Install Required Tools
+
+Run the following commands **once** (first-time setup only):
+
+```bash
+sudo apt update
+sudo apt install flex bison gcc make -y
+```
+
+Verify everything installed correctly:
+
+```bash
+flex --version
+bison --version
+gcc --version
+make --version
+```
+
+You should see version numbers printed for all four tools.
+
+---
+
+### 🔹 Step 3 — Set Up the Project Folder
+
+```bash
+mkdir -p ~/minicompiler
+cd ~/minicompiler
+```
+
+---
+
+### 🔹 Step 4 — Copy Project Files into WSL
+
+**Option A — From Windows Desktop (replace `YourName` with your Windows username):**
+
+```bash
+cp "/mnt/c/Users/YourName/Desktop/lexer.l"   ~/minicompiler/
+cp "/mnt/c/Users/YourName/Desktop/parser.y"  ~/minicompiler/
+cp "/mnt/c/Users/YourName/Desktop/Makefile"  ~/minicompiler/
+cp "/mnt/c/Users/YourName/Desktop/test.py"   ~/minicompiler/
+```
+
+> **Tip:** Your Windows `C:\` drive is accessible in WSL at `/mnt/c/`
+
+**Option B — From Windows Downloads folder:**
+
+```bash
+cp "/mnt/c/Users/YourName/Downloads/lexer.l"   ~/minicompiler/
+cp "/mnt/c/Users/YourName/Downloads/parser.y"  ~/minicompiler/
+cp "/mnt/c/Users/YourName/Downloads/Makefile"  ~/minicompiler/
+cp "/mnt/c/Users/YourName/Downloads/test.py"   ~/minicompiler/
+```
+
+**Option C — Create files manually with nano:**
+
+```bash
+nano lexer.l      # Paste content → Ctrl+O → Enter → Ctrl+X to save
+nano parser.y     # Paste content → Ctrl+O → Enter → Ctrl+X to save
+nano Makefile     # Paste content → Ctrl+O → Enter → Ctrl+X to save
+nano test.py      # Paste content → Ctrl+O → Enter → Ctrl+X to save
+```
+
+Confirm all files are present:
+
+```bash
+ls ~/minicompiler/
+# Expected: lexer.l  parser.y  Makefile  test.py
+```
+
+---
+
+### 🔹 Step 5 — Build the Compiler
+
+```bash
+cd ~/minicompiler
+make
+```
+
+**Expected output:**
+
+```
+bison -d parser.y
+flex lexer.l
+gcc -o minicompiler parser.tab.c lex.yy.c -lfl -w
+```
+
+> ✅ If you see those 3 lines with no errors, the build succeeded.
+
+---
+
+### 🔹 Step 6 — Run the Compiler
+
+```bash
+./minicompiler < test.py
+```
+
+You will see all **6 phases** print in order:
+
+```
+=====================================================
+       MINI COMPILER  --  CSE 430 Lab Project
+=====================================================
+
++--------------------------------------------------+
+| PHASE 1: LEXICAL ANALYSIS                        |
++------+---------------------+--------------------+
+| Line | Token Type          | Lexeme             |
++------+---------------------+--------------------+
+|  2   | KEYWORD             | int                |
+|  2   | IDENTIFIER          | a                  |
+|  2   | OP_ASSIGN           | =                  |
+|  2   | NUMBER              | 12                 |
+|  2   | OP_MINUS            | -                  |
+...
+
++----------------------------------------------------+
+| PHASE 2: SYNTAX ANALYSIS                           |
++----------------------------------------------------+
+  Rule 1  : prog → stmt
+  Rule 2  : stmt → int id = expr ;
+  Rule 3  : expr → NUMBER
+...
+
++----------------------------------------------------+
+| PHASE 3: SEMANTIC ANALYSIS                         |
++----------------------------------------------------+
+  DECLARE  a             val=9     scope=0   type=variable
+  DECLARE  b             val=14    scope=0   type=variable
+...
+
++----------------------------------------------------+
+| PHASE 3b: SYMBOL TABLE                             |
++----------------+---------+----------+--------------+
+| Name           | Value   | Type     | Scope        |
++----------------+---------+----------+--------------+
+| a              | 9       | variable | global       |
+| b              | 14      | variable | global       |
+...
+
++----------------------------------------------------+
+| PHASE 4: INTERMEDIATE CODE GENERATION (3-Address)  |
++----------------------------------------------------+
+  t0       = 12 - 3
+  a        = t0
+  t1       = a + 5
+  b        = t1
+  print    a
+...
+
++----------------------------------------------------+
+| PHASE 5: CODE OPTIMIZATION                         |
++----------------------------------------------------+
+  [Constant Fold]  t0 = 12 - 3  =>  t0 = 9
+  [Constant Fold]  t2 = 2 * 2   =>  t2 = 4
+  [Copy Prop]      Replace 't0' with 9 in line 2
+  [Dead Code Elim] Remove unused: t0 = 12 = 3
+...
+
++----------------------------------------------------+
+| PHASE 6: CODE GENERATION (Pseudo x86 Assembly)     |
++----------------------------------------------------+
+.data
+  a            DW  0
+  b            DW  0
+.text
+  JMP   main
+main:
+  MOV   AX, #9
+  MOV   [a], AX
+  OUT   AX
+  HLT
+
+=====================================================
+  Compilation SUCCESS  --  All 6 phases complete.
+=====================================================
+```
+
+---
+
+### 🔹 Step 7 — Run with Your Own Program
+
+Create a new source file:
+
+```bash
+nano ~/minicompiler/myprogram.py
+```
+
+Write your program using the supported syntax:
+
+```python
+// My custom program
+int x = 10;
+int y = 4;
+int z = x + y;
+print z;
+
+if (x > y) {
+    print x;
+}
+
+while (y > 0) {
+    y = y - 1;
+}
+
+print "Done!";
+```
+
+Save (`Ctrl+O` → `Enter` → `Ctrl+X`), then compile:
+
+```bash
+./minicompiler < myprogram.py
+```
+
+---
+
+### 🔹 Step 8 — Clean and Rebuild (Optional)
+
+If you edit `lexer.l` or `parser.y`, rebuild from scratch:
+
+```bash
+make clean
+make
+```
+
+---
+
+### 🔧 Troubleshooting
+
+| Problem | Solution |
+|---------|----------|
+| `make: command not found` | `sudo apt install make -y` |
+| `flex: command not found` | `sudo apt install flex -y` |
+| `bison: command not found` | `sudo apt install bison -y` |
+| `cannot find -lfl` | `sudo apt install libfl-dev -y` |
+| `parser.y: syntax error` | Check for smart quotes — use only `"` not `"` `"` |
+| `Permission denied: ./minicompiler` | `chmod +x minicompiler` |
+| `No such file or directory` | Run `ls` to confirm all 4 files exist in the folder |
+| Files not found after copy | Check the Windows username spelling in the path |
+
+---
+
+## 📄 Sample Input & Output
+
+### Input — `test.py`
+
+```python
+// Test program for Mini Compiler
+int a = 12 - 3;
+int b = a + 5;
+int c = 2 * 2;
+int d = c / 2;
+print a;
+print b;
+print c;
+print d;
+print "Hello, World!";
+```
+
+### Phase 1 — Token Table (excerpt)
+
+| Line | Token Type | Lexeme |
+|------|-----------|--------|
+| 2 | KEYWORD | `int` |
+| 2 | IDENTIFIER | `a` |
+| 2 | OP_ASSIGN | `=` |
+| 2 | NUMBER | `12` |
+| 2 | OP_MINUS | `-` |
+| 2 | NUMBER | `3` |
+| 2 | SEMICOLON | `;` |
+| 10 | STRING | `"Hello, World!"` |
+
+### Phase 4 — Intermediate Code
+
+```
+t0       = 12 - 3
+a        = t0
+t1       = a + 5
+b        = t1
+t2       = 2 * 2
+c        = t2
+t3       = c / 2
+d        = t3
+print    a
+print    b
+print    c
+print    d
+print    "Hello, World!"
+```
+
+### Phase 5 — After Optimization (31% fewer instructions)
+
+```
+a        = 9
+b        = 14
+c        = 4
+d        = 2
+print    9
+print    14
+print    4
+print    2
+print    "Hello, World!"
+```
+
+### Phase 6 — Assembly Output
+
+```asm
+.data
+  a            DW  0          ; variable
+  b            DW  0          ; variable
+  c            DW  0          ; variable
+  d            DW  0          ; variable
+
+.text
+  JMP   main
+
+main:
+  MOV   AX, #9
+  MOV   [a], AX
+  MOV   AX, #14
+  MOV   [b], AX
+  MOV   AX, #4
+  MOV   [c], AX
+  MOV   AX, #2
+  MOV   [d], AX
+  MOV   AX, [a]
+  OUT   AX
+  MOV   AX, [b]
+  OUT   AX
+  MOV   AX, [c]
+  OUT   AX
+  MOV   AX, [d]
+  OUT   AX
+  MOV   AX, "Hello, World!"
+  OUT   AX
+  HLT
+```
+
+---
+
+## 🚨 Error Detection
+
+The compiler detects **3 types of errors** with clear messages and line numbers.
+
+### Lexical Error — Unknown Character
+
+```python
+int a@ = 5;
+```
+```
+[Lex Error] Unknown character '@' at line 1
+```
+
+### Syntax Error — Invalid Grammar
+
+```python
+int a = ;
+```
+```
+[Syntax Error] syntax error at line 1
+```
+
+### Semantic Error — Undefined Variable
+
+```python
+print z;
+```
+```
+[Semantic Error] Undefined variable 'z' at line 1
+```
+
+---
+
+## ⚡ Optimizations
+
+The compiler runs **3 optimization passes** in Phase 5:
+
+### 1. Constant Folding
+
+Evaluates expressions with literal operands at compile time:
+
+```
+Before:  t0 = 12 - 3        After:  t0 = 9
+Before:  t2 = 2 * 2         After:  t2 = 4
+```
+
+### 2. Copy Propagation
+
+Replaces a variable with its known literal value in later instructions:
+
+```
+Before:  a = t0;  print a   After:  a = 9;  print 9
+```
+
+### 3. Dead Code Elimination
+
+Removes temporaries that are assigned but never read again:
+
+```
+Before:  t0 = 9  (assigned, then never used)
+After:   (removed entirely)
+```
+
+> **Result:** 13 instructions → 9 instructions (**31% reduction**)
+
+---
+
+## 🛠️ Built With
+
+<table>
+<tr>
+<td align="center" width="120">
+<img src="https://img.shields.io/badge/Flex-Lexer-1565C0?style=flat-square"/><br/>
+<strong>Flex</strong><br/>
+<sub>Lexical analyzer generator</sub>
+</td>
+<td align="center" width="120">
+<img src="https://img.shields.io/badge/Bison-Parser-6A1B9A?style=flat-square"/><br/>
+<strong>Bison</strong><br/>
+<sub>YACC parser generator</sub>
+</td>
+<td align="center" width="120">
+<img src="https://img.shields.io/badge/GCC-Compiler-E65100?style=flat-square"/><br/>
+<strong>GCC</strong><br/>
+<sub>GNU C compiler</sub>
+</td>
+<td align="center" width="120">
+<img src="https://img.shields.io/badge/WSL-Linux-00695C?style=flat-square"/><br/>
+<strong>WSL / Linux</strong><br/>
+<sub>Runtime environment</sub>
+</td>
+</tr>
+</table>
+
+---
+
+## 📚 References
+
+1. Aho, A.V., Lam, M.S., Sethi, R., Ullman, J.D. — *Compilers: Principles, Techniques, and Tools* (2nd Ed.), Pearson
+2. Flex documentation — https://github.com/westes/flex
+3. Bison manual — https://www.gnu.org/software/bison/manual/
+4. CSE 430 Lab Materials — University of Asia Pacific, Fall 2023
+
+---
+
+<div align="center">
+
+Made with ❤️ for **CSE 430 — Compiler Design Lab**<br/>
+**University of Asia Pacific** &nbsp;·&nbsp; Department of Computer Science & Engineering
+
+</div>
