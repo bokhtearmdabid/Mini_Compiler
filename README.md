@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🔧 Mini Compiler
+# 🔧 Mini Compiler 🔧
 ### A project of CSE 430 — Compiler Design Lab
 
 <p>
@@ -20,7 +20,6 @@
 <p>
   <strong>University of Asia Pacific</strong> &nbsp;·&nbsp;
   Department of Computer Science & Engineering &nbsp;·&nbsp;
-  Fall 2023
 </p>
 
 </div>
