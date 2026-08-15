@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🔧 Mini Compiler 🔧
+#  Mini Compiler 
 ### A project of CSE 430 — Compiler Design Lab
 
 <p>
